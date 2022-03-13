@@ -1,3 +1,10 @@
 from django.contrib import admin
 
-# Register your models here.
+from budget.models import BankAccount
+
+
+@admin.register(BankAccount)
+class BankAccountAdmin(admin.ModelAdmin):
+    list_display = ["name"]
+    list_filter = ["name"]
+    list_editable = ["name"]

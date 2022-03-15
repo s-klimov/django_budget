@@ -1,3 +1,4 @@
+from django.db.models import Sum
 from taggit.managers import TaggableManager
 from timestamps.models import models, Model
 
@@ -10,9 +11,10 @@ class BankAccount(Model):
 
     @property
     def outcoming_balance(self):
-        return self.incoming_balance + \
-               sum([key["value"] for key in self.income_set.values("value")]) - \
-               sum([key["value"] for key in self.expenditure_set.values("value")])
+        incomes = self.income_set.aggregate(Sum("value"))["value__sum"] or 0
+        expenditures = self.expenditure_set.aggregate(Sum("value"))["value__sum"] or 0
+
+        return self.incoming_balance + incomes - expenditures
 
     class Meta:
         ordering = ("name",)
@@ -23,6 +25,71 @@ class BankAccount(Model):
         return self.name
 
 
+class Category(Model):
+    name = models.CharField(
+        max_length=200, verbose_name="название", db_index=True, unique=True
+    )
+
+    class Meta:
+        abstract = True
+
+    def __str__(self):
+        return self.name
+
+
+class IncomeCategory(Category):
+
+    class Meta:
+        ordering = ("name",)
+        verbose_name = "группа доходов"
+        verbose_name_plural = "группы доходов"
+
+
+class ExpenditureCategory(Category):
+
+    class Meta:
+        ordering = ("name",)
+        verbose_name = "группа расходов"
+        verbose_name_plural = "группы расходов"
+
+
+class SubCategory(Model):
+
+    name = models.CharField(
+        max_length=200, verbose_name="название", db_index=True
+    )
+
+    class Meta:
+        abstract = True
+
+    def __str__(self):
+        return "{}/{}".format(self.group.name, self.name)
+
+
+class IncomeSubSubCategory(SubCategory):
+    group = models.ForeignKey(
+        IncomeCategory, on_delete=models.CASCADE, verbose_name="категория"
+    )
+
+    class Meta:
+        ordering = ("name",)
+        unique_together = ('name', 'group')
+        verbose_name = "подкатегория доходов"
+        verbose_name_plural = "подкатегории доходов"
+
+
+class ExpenditureSubCategory(SubCategory):
+    group = models.ForeignKey(
+        ExpenditureCategory, on_delete=models.CASCADE, verbose_name="категория"
+    )
+
+    class Meta:
+        ordering = ("name",)
+        unique_together = ('name', 'group')
+        verbose_name = "подкатегория расходов"
+        verbose_name_plural = "подкатегории расходов"
+
+
 class CashFlow(Model):
     value = models.DecimalField(verbose_name="сумма", max_digits=10, decimal_places=2)
     bank_account = models.ForeignKey(
@@ -31,7 +98,7 @@ class CashFlow(Model):
     comment = models.CharField(
         max_length=200, verbose_name="комментарий", null=True, blank=True
     )
-    tags = TaggableManager()
+    tags = TaggableManager(blank=True, help_text="введите через запятую названия аналитических групп")
 
     class Meta:
         abstract = True
@@ -43,6 +110,9 @@ class CashFlow(Model):
 
 
 class Income(CashFlow):
+    sub_category = models.ForeignKey(
+        IncomeCategory, on_delete=models.CASCADE, verbose_name="категория"
+    )
 
     class Meta:
         ordering = ("-created_at",)
@@ -51,6 +121,9 @@ class Income(CashFlow):
 
 
 class Expenditure(CashFlow):
+    sub_category = models.ForeignKey(
+        ExpenditureCategory, on_delete=models.CASCADE, verbose_name="категория"
+    )
 
     class Meta:
         ordering = ("-created_at",)

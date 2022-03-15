@@ -5,7 +5,7 @@ class BankAccount(Model):
     name = models.CharField(
         max_length=200, verbose_name="название", db_index=True, unique=True
     )
-    incoming_balance = models.DecimalField(verbose_name="сумма", decimal_places=2)
+    incoming_balance = models.DecimalField(verbose_name="сумма", max_digits=10, decimal_places=2)
 
     class Meta:
         ordering = ("name",)
@@ -50,7 +50,7 @@ class Category(Model):
         max_length=200, verbose_name="название", db_index=True
     )
     group = models.ForeignKey(
-        IncomeGroup, related_name="categories", on_delete=models.CASCADE
+        IncomeGroup, on_delete=models.CASCADE
     )
 
     class Meta:
@@ -78,12 +78,12 @@ class ExpenditureCategory(Category):
 
 
 class CashFlow(Model):
-    value = models.DecimalField(verbose_name="сумма", decimal_places=2)
+    value = models.DecimalField(verbose_name="сумма", max_digits=10, decimal_places=2)
     bank_account = models.ForeignKey(
-        BankAccount, related_name="expenditures", on_delete=models.CASCADE
+        BankAccount, on_delete=models.CASCADE
     )
     category = models.ForeignKey(
-        ExpenditureCategory, related_name="expenditures", on_delete=models.CASCADE
+        ExpenditureCategory, on_delete=models.CASCADE
     )
     comment = models.CharField(
         max_length=200, verbose_name="комментарий", null=True, blank=True

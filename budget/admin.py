@@ -20,16 +20,11 @@ class BankAccountAdmin(admin.ModelAdmin):
 
 @admin.register(Expenditure)
 class ExpenditureAdmin(admin.ModelAdmin):
-    list_display = ("value", "bank_account", "tag_list", )
+    list_display = ("value", "bank_account", "operation_date", )
+    list_editable = ("operation_date", )
     exclude = ("deleted_at", )
     list_per_page = 10
 
-    def get_queryset(self, request):
-        return super().get_queryset(request).prefetch_related('tags')
-
-    def tag_list(self, obj):
-        return u", ".join(o.name for o in obj.tags.all())
-    tag_list.short_description = "аналитика"
 
 @admin.register(Income)
 class IncomeAdmin(ExpenditureAdmin):

@@ -1,4 +1,7 @@
+import datetime
+
 from django.db.models import Sum
+from django.utils import timezone
 from taggit.managers import TaggableManager
 from timestamps.models import models, Model
 
@@ -95,17 +98,19 @@ class CashFlow(Model):
     bank_account = models.ForeignKey(
         BankAccount, on_delete=models.CASCADE, verbose_name="счет"
     )
-    comment = models.CharField(
-        max_length=200, verbose_name="комментарий", null=True, blank=True
+    operation_date = models.DateField(
+        default=timezone.now, verbose_name="дата"
     )
-    tags = TaggableManager(blank=True, help_text="введите через запятую названия аналитических групп")
+    tags = TaggableManager(
+        verbose_name="для расширенных отчетов", blank=True, help_text="введите через запятую названия аналитических групп"
+    )
 
     class Meta:
         abstract = True
 
     def __str__(self):
-        return "{} {} {}".format(
-            self.__class__.__name__, self.tags, self.value
+        return "{} {}".format(
+            self.__class__._meta.verbose_name.title(), self.value
         )
 
 

@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     'timestamps',
     'taggit',
     'budget',
+    'account',
 ]
 
 MIDDLEWARE = [
@@ -127,3 +128,5 @@ STATIC_URL = 'static/'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 TAGGIT_CASE_INSENSITIVE = True
+
+AUTHENTICATION_BACKENDS = ['account.auth_backends.EmailBackend']

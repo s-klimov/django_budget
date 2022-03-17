@@ -7,7 +7,8 @@ from budget.models import (
     ExpenditureCategory,
     ExpenditureSubCategory,
     IncomeCategory,
-    IncomeSubSubCategory,
+    IncomeSubCategory,
+    Transfer,
 )
 
 
@@ -38,7 +39,7 @@ class ExpenditureSubCategoryTabularInLine(admin.TabularInline):
 
 
 class IncomeSubCategoryTabularInLine(ExpenditureSubCategoryTabularInLine):
-    model = IncomeSubSubCategory
+    model = IncomeSubCategory
 
 
 @admin.register(ExpenditureCategory)
@@ -52,3 +53,8 @@ class ExpenditureCategoryAdmin(admin.ModelAdmin):
 @admin.register(IncomeCategory)
 class IncomeCategoryAdmin(ExpenditureCategoryAdmin):
     inlines = (IncomeSubCategoryTabularInLine,)
+
+
+@admin.register(Transfer)
+class TransferAdmin(ExpenditureAdmin):
+    list_display = ("value", "bank_account",  "bank_account_to", "operation_date", )

@@ -1,6 +1,4 @@
-import datetime
-
-from django.db.models import Sum
+from django.db.models import Sum, Q, F
 from django.utils import timezone
 from taggit.managers import TaggableManager
 from timestamps.models import models, Model
@@ -16,8 +14,9 @@ class BankAccount(Model):
     def outcoming_balance(self):
         incomes = self.income_set.aggregate(Sum("value"))["value__sum"] or 0
         expenditures = self.expenditure_set.aggregate(Sum("value"))["value__sum"] or 0
-
-        return self.incoming_balance + incomes - expenditures
+        transfers_from = self.transfer_set.filter(bank_account=self).aggregate(Sum("value"))["value__sum"] or 0
+        transfers_to = self.transfers_to.filter(bank_account_to=self).aggregate(Sum("value"))["value__sum"] or 0
+        return self.incoming_balance + incomes + transfers_to - expenditures - transfers_from
 
     class Meta:
         ordering = ("name",)
@@ -66,29 +65,29 @@ class SubCategory(Model):
         abstract = True
 
     def __str__(self):
-        return "{}/{}".format(self.group.name, self.name)
+        return "{}/{}".format(self.category.name, self.name)
 
 
-class IncomeSubSubCategory(SubCategory):
-    group = models.ForeignKey(
+class IncomeSubCategory(SubCategory):
+    category = models.ForeignKey(
         IncomeCategory, on_delete=models.CASCADE, verbose_name="категория"
     )
 
     class Meta:
         ordering = ("name",)
-        unique_together = ('name', 'group')
+        unique_together = ('name', 'category')
         verbose_name = "подкатегория доходов"
         verbose_name_plural = "подкатегории доходов"
 
 
 class ExpenditureSubCategory(SubCategory):
-    group = models.ForeignKey(
+    category = models.ForeignKey(
         ExpenditureCategory, on_delete=models.CASCADE, verbose_name="категория"
     )
 
     class Meta:
         ordering = ("name",)
-        unique_together = ('name', 'group')
+        unique_together = ('name', 'category')
         verbose_name = "подкатегория расходов"
         verbose_name_plural = "подкатегории расходов"
 
@@ -120,7 +119,7 @@ class Income(CashFlow):
     )
 
     class Meta:
-        ordering = ("-created_at",)
+        ordering = ("-operation_date",)
         verbose_name = "доход"
         verbose_name_plural = "доходы"
 
@@ -131,6 +130,23 @@ class Expenditure(CashFlow):
     )
 
     class Meta:
-        ordering = ("-created_at",)
+        ordering = ("-operation_date",)
         verbose_name = "расход"
         verbose_name_plural = "расходы"
+
+
+class Transfer(CashFlow):
+    bank_account_to = models.ForeignKey(
+        BankAccount, on_delete=models.CASCADE, related_name="transfers_to", verbose_name="на какой счет"
+    )
+
+    class Meta:
+        ordering = ("-operation_date",)
+        constraints = [
+            models.CheckConstraint(
+                check=~Q(bank_account=F("bank_account_to")),
+                name='нельзя переводить деньги между одним и тем же счетом'
+            )
+        ]
+        verbose_name = "перевод между счетами"
+        verbose_name_plural = "переводы между счетами"

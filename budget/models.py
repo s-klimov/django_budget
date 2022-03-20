@@ -1,3 +1,5 @@
+import uuid
+
 from django.db.models import Sum, Q, F
 from django.utils import timezone
 from taggit.managers import TaggableManager
@@ -9,6 +11,7 @@ class BankAccount(Model):
         max_length=200, verbose_name="название", db_index=True, unique=True
     )
     incoming_balance = models.DecimalField(verbose_name="входящий остаток", max_digits=10, decimal_places=2)
+    is_active = models.BooleanField(verbose_name='счет используется', default=True)
 
     @property
     def outcoming_balance(self):
@@ -93,15 +96,13 @@ class ExpenditureSubCategory(SubCategory):
 
 
 class CashFlow(Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     value = models.DecimalField(verbose_name="сумма", max_digits=10, decimal_places=2)
     bank_account = models.ForeignKey(
         BankAccount, on_delete=models.CASCADE, verbose_name="счет"
     )
     operation_date = models.DateField(
         default=timezone.now, verbose_name="дата"
-    )
-    tags = TaggableManager(
-        verbose_name="для расширенных отчетов", blank=True, help_text="введите через запятую названия аналитических групп"
     )
 
     class Meta:
@@ -127,6 +128,11 @@ class Income(CashFlow):
 class Expenditure(CashFlow):
     sub_category = models.ForeignKey(
         ExpenditureCategory, on_delete=models.CASCADE, verbose_name="категория"
+    )
+    tags = TaggableManager(
+        verbose_name="для расширенных отчетов",
+        blank=True,
+        help_text="введите через запятую названия аналитических групп"
     )
 
     class Meta:

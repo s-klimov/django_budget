@@ -16,6 +16,4 @@ def extract_records(con, sql: str, params: dict = dict(), many: bool = True):
 
     cur.row_factory = namedtuple_factory
     records = cur.fetchall() if many else cur.fetchone()
-    # Be sure to close the connection
-    con.close()
     return records

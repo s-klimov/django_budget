@@ -116,7 +116,7 @@ class CashFlow(Model):
 
 class Income(CashFlow):
     sub_category = models.ForeignKey(
-        IncomeCategory, on_delete=models.CASCADE, verbose_name="категория"
+        IncomeSubCategory, on_delete=models.CASCADE, verbose_name="категория"
     )
 
     class Meta:
@@ -127,7 +127,7 @@ class Income(CashFlow):
 
 class Expenditure(CashFlow):
     sub_category = models.ForeignKey(
-        ExpenditureCategory, on_delete=models.CASCADE, verbose_name="категория"
+        ExpenditureSubCategory, on_delete=models.CASCADE, verbose_name="категория"
     )
     tags = TaggableManager(
         verbose_name="для расширенных отчетов",

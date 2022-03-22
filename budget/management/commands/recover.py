@@ -1,12 +1,12 @@
 import sqlite3
 from pathlib import Path
 
+from budget.models import BankAccount, IncomeSubCategory, IncomeCategory, ExpenditureSubCategory, ExpenditureCategory
 from utils.extract import extract_records
 
 BASE_DIR = Path(__file__).resolve().parent.parent.parent.parent
 
-from django.core.management.base import BaseCommand, CommandError
-from budget.models import *
+from django.core.management.base import BaseCommand
 
 
 class Command(BaseCommand):
@@ -43,5 +43,31 @@ class Command(BaseCommand):
             ]
         )
         self.stdout.write(self.style.SUCCESS('успешно загружены банковские счета'))
+
+        categories = extract_records(
+            con,
+            "select _id as id, name, parent_id, ei "
+            "from categories_table order by parent_id"
+        )
+        IncomeSubCategory.objects_with_deleted.delete(hard=True)
+        IncomeCategory.objects_with_deleted.delete(hard=True)
+        ExpenditureSubCategory.objects_with_deleted.delete(hard=True)
+        ExpenditureCategory.objects_with_deleted.delete(hard=True)
+        for category in categories:
+            Category_ = ExpenditureCategory if category.ei == 0 else IncomeCategory
+            SubCategory_ = ExpenditureSubCategory if category.ei == 0 else IncomeSubCategory
+            if category.parent_id == 0:
+                category_, _ = Category_.objects.update_or_create(
+                    id=category.id,
+                    name=category.name
+                )
+            else:
+                SubCategory_.objects.create(
+                    id=category.id,
+                    name=category.name,
+                    category=Category_.objects.get(id=category.parent_id)
+                )
+        self.stdout.write(self.style.SUCCESS('успешно загружены категории'))
+        con.close()
 
 

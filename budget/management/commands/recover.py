@@ -1,3 +1,4 @@
+import os.path
 import sqlite3
 from datetime import datetime
 from pathlib import Path
@@ -22,7 +23,7 @@ class Command(BaseCommand):
         )
 
     def handle(self, *args, **options):
-        dbfile = BASE_DIR / options['dbfile']
+        dbfile = os.path.join(BASE_DIR, options['dbfile'])
 
         Expenditure.objects_with_deleted.delete(hard=True)
         Income.objects_with_deleted.delete(hard=True)
@@ -84,12 +85,6 @@ class Command(BaseCommand):
             "select value, category, account, date "
             "from income_or_expense where i_e=0 and from_or_to is null"
         )
-        # [print(
-        #     BankAccount.objects.get(name=expenditure.account),
-        #     expenditure.category,
-        #     ExpenditureSubCategory.objects.get(name=expenditure.category),
-        #     datetime.utcfromtimestamp(expenditure.date / 1000)
-        # ) for expenditure in expenditures]
         Expenditure.objects.bulk_create(
             [
                 Expenditure(
@@ -101,6 +96,24 @@ class Command(BaseCommand):
             ]
         )
         self.stdout.write(self.style.SUCCESS('успешно загружены расходы'))
+
+        incomes = extract_records(
+            con,
+            "select value, category, account, date "
+            "from income_or_expense where i_e=1 and from_or_to is null"
+        )
+        Income.objects.bulk_create(
+            [
+                Income(
+                    value=income.value,
+                    bank_account=BankAccount.objects.get(name=income.account),
+                    sub_category=IncomeSubCategory.objects.get(name=income.category),
+                    operation_date=datetime.utcfromtimestamp(income.date/1000)
+                ) for income in incomes
+            ]
+        )
+        self.stdout.write(self.style.SUCCESS('успешно загружены доходы'))
+
         con.close()
 
 

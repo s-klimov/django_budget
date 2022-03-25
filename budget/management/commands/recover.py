@@ -83,7 +83,8 @@ class Command(BaseCommand):
         expenditures = extract_records(
             con,
             "select value, category, account, date "
-            "from income_or_expense where i_e=0 and from_or_to is null"
+            "from income_or_expense "
+            "where i_e=0 and category <> 'Transfer between accounts'"
         )
         Expenditure.objects.bulk_create(
             [
@@ -100,7 +101,8 @@ class Command(BaseCommand):
         incomes = extract_records(
             con,
             "select value, category, account, date "
-            "from income_or_expense where i_e=1 and from_or_to is null"
+            "from income_or_expense "
+            "where i_e=1 and category <> 'Transfer between accounts'"
         )
         Income.objects.bulk_create(
             [
@@ -113,6 +115,24 @@ class Command(BaseCommand):
             ]
         )
         self.stdout.write(self.style.SUCCESS('успешно загружены доходы'))
+
+        transfers = extract_records(
+            con,
+            "select value, account, date, from_or_to as income_account "
+            "from income_or_expense "
+            "where i_e=0 and category = 'Transfer between accounts'"
+        )
+        Transfer.objects.bulk_create(
+            [
+                Transfer(
+                    value=transfer.value,
+                    bank_account=BankAccount.objects.get(name=transfer.account),
+                    bank_account_to=BankAccount.objects.get(name=transfer.income_account),
+                    operation_date=datetime.utcfromtimestamp(transfer.date/1000)
+                ) for transfer in transfers
+            ]
+        )
+        self.stdout.write(self.style.SUCCESS('успешно загружены переводы между счетами'))
 
         con.close()
 

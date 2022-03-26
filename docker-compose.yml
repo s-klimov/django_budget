@@ -9,9 +9,15 @@ services:
       - POSTGRES_NAME=postgres
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=postgres
+    networks:
+      - budget_net
   web:
     build: .
-    command: python manage.py runserver 0.0.0.0:8000
+    command:  >
+      sh -c "python manage.py makemigrations --no-input && 
+             python manage.py migrate --no-input && 
+             python manage.py collectstatic --no-input &&
+             python manage.py runserver 0.0.0.0:8000"
     volumes:
       - .:/code
     ports:
@@ -22,3 +28,10 @@ services:
       - POSTGRES_PASSWORD=postgres
     depends_on:
       - db
+    networks:
+      - budget_net
+
+networks:
+  budget_net:
+    name: budget_net
+    driver: bridge

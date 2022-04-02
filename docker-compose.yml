@@ -3,35 +3,29 @@ version: "3.9"
 services:
   db:
     image: postgres
+    env_file:
+      - .env
     volumes:
       - ./data/db:/var/lib/postgresql/data
+    ports:
+      - $POSTGRES_PORT:5432
     environment:
-      - POSTGRES_NAME=postgres
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=postgres
-    networks:
-      - budget_net
+      - POSTGRES_NAME=$POSTGRES_NAME
+      - POSTGRES_USER=$POSTGRES_USER
+      - POSTGRES_PASSWORD=$POSTGRES_PASSWORD
   web:
     build: .
-    command:  >
-      sh -c "python manage.py makemigrations --no-input && 
-             python manage.py migrate --no-input && 
-             python manage.py collectstatic --no-input &&
-             python manage.py runserver 0.0.0.0:8000"
+    env_file:
+      - .env
+#    command:  >
+#      sh -c "python manage.py makemigrations --no-input &&
+#             python manage.py migrate --no-input &&
+#             python manage.py collectstatic --no-input &&
+#             python manage.py runserver 0.0.0.0:8000"
     volumes:
       - .:/code
     ports:
       - "8000:8000"
-    environment:
-      - POSTGRES_NAME=postgres
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=postgres
+    command: ["./wait-for-it.sh", "db:5432", "--", "python", "manage.py", "runserver", "0.0.0.0:8000"]
     depends_on:
       - db
-    networks:
-      - budget_net
-
-networks:
-  budget_net:
-    name: budget_net
-    driver: bridge

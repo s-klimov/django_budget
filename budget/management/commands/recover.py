@@ -71,12 +71,13 @@ class Command(BaseCommand):
                 )
             else:
                 SubCategory_.objects.create(
-                    id=category.id,
+                    # id=category.id,
                     name=category.name,
                     category_id=category.parent_id
                 )
         ExpenditureSubCategory.objects.create(name="Питание", category_id=4)
         ExpenditureSubCategory.objects.create(name="Покупка товаров", category_id=4)
+        ExpenditureSubCategory.objects.create(name="Повседневные покупки", category_id=4)
         IncomeSubCategory.objects.create(name="Другое (Доходы)", category_id=2)
         self.stdout.write(self.style.SUCCESS('успешно загружены категории'))
 

@@ -7,6 +7,7 @@ services:
       - .env
     volumes:
       - ./data/db:/var/lib/postgresql/data
+    restart: always
     ports:
       - $POSTGRES_PORT:5432
     environment:
@@ -17,11 +18,7 @@ services:
     build: .
     env_file:
       - .env
-#    command:  >
-#      sh -c "python manage.py makemigrations --no-input &&
-#             python manage.py migrate --no-input &&
-#             python manage.py collectstatic --no-input &&
-#             python manage.py runserver 0.0.0.0:8000"
+    restart: always
     volumes:
       - .:/code
     ports:

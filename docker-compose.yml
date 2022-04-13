@@ -8,6 +8,8 @@ services:
     volumes:
       - ./data/db:/var/lib/postgresql/data
     restart: always
+    networks:
+      - budget_net
     ports:
       - $POSTGRES_PORT:5432
     environment:
@@ -16,13 +18,39 @@ services:
       - POSTGRES_PASSWORD=$POSTGRES_PASSWORD
   web:
     build: .
+    command: bash -c "
+      python manage.py makemigrations --no-input 
+      && python manage.py migrate --no-input 
+      && python manage.py collectstatic --no-input 
+      && python manage.py runserver 0.0.0.0:8000"
     env_file:
       - .env
     restart: always
+    networks:
+      - budget_net
     volumes:
       - .:/code
     ports:
       - "8000:8000"
-    command: ["./wait-for-it.sh", "db:5432", "--", "python", "manage.py", "runserver", "0.0.0.0:8000"]
     depends_on:
       - db
+  nginx:
+    container_name: nginx
+    image: nginx:1.19.2
+    restart: always
+    networks:
+      - budget_net
+    depends_on:
+      - db
+      - web
+    ports:
+      - 80:80
+    volumes:
+      - ./docker/nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./docker/nginx/configs:/etc/nginx/conf.d:ro
+      - ./static/:/static
+
+networks:
+  budget_net:
+    name: budget_net
+    driver: bridge

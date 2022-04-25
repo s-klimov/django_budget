@@ -68,7 +68,7 @@ class SubCategory(Model):
         abstract = True
 
     def __str__(self):
-        return "{}/{}".format(self.category.name, self.name)
+        return "{} -> {}".format(self.category.name, self.name)
 
 
 class IncomeSubCategory(SubCategory):
@@ -77,7 +77,7 @@ class IncomeSubCategory(SubCategory):
     )
 
     class Meta:
-        ordering = ("name",)
+        ordering = ("category__name", "name")
         unique_together = ('name', 'category')
         verbose_name = "подкатегория доходов"
         verbose_name_plural = "подкатегории доходов"
@@ -89,7 +89,7 @@ class ExpenditureSubCategory(SubCategory):
     )
 
     class Meta:
-        ordering = ("name",)
+        ordering = ("category__name", "name")
         unique_together = ('name', 'category')
         verbose_name = "подкатегория расходов"
         verbose_name_plural = "подкатегории расходов"

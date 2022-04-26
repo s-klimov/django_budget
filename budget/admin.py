@@ -9,7 +9,26 @@ from budget.models import (
     IncomeCategory,
     IncomeSubCategory,
     Transfer,
+    History,
 )
+
+
+class HistoryInline(admin.TabularInline):
+    verbose_name = "операции"
+    verbose_name_plural = "история операций"
+    model = History
+    exclude = ("id", )
+    extra = 0
+    ordering = ("-operation_date", "bank_account", "type", )
+
+    def has_change_permission(self, request, obj=None):
+        return False
+
+    def has_add_permission(self, request, obj=None):
+        return False
+
+    def has_delete_permission(self, request, obj=None):
+        return False
 
 
 @admin.register(BankAccount)
@@ -17,6 +36,11 @@ class BankAccountAdmin(admin.ModelAdmin):
     list_display = ("name", "incoming_balance", "outcoming_balance")
     exclude = ("deleted_at", )
     list_filter = ("name", )
+    save_on_top = True
+
+    inlines = [
+        HistoryInline,
+    ]
 
 
 @admin.register(Expenditure)

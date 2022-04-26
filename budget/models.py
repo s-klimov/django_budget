@@ -156,3 +156,16 @@ class Transfer(CashFlow):
         ]
         verbose_name = "перевод между счетами"
         verbose_name_plural = "переводы между счетами"
+
+
+class History(models.Model):
+    type = models.CharField(max_length=64, verbose_name="тип операции")
+    id = models.UUIDField(primary_key=True)
+    value = models.DecimalField(verbose_name="сумма", max_digits=10, decimal_places=2)
+    operation_date = models.DateField(verbose_name="дата")
+    bank_account = models.ForeignKey(BankAccount, verbose_name="счет", on_delete=models.CASCADE)
+    comment = models.CharField(max_length=512, verbose_name="комментарий")
+
+    class Meta:
+       managed = False
+       db_table = "history"

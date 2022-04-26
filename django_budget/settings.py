@@ -84,6 +84,9 @@ WSGI_APPLICATION = 'django_budget.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
+        'OPTIONS': {
+            'options': f'-c search_path=budget,public'
+        },
         'NAME': 'postgres',
         'USER': 'postgres',
         'PASSWORD': 'postgres',

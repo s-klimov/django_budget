@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'timestamps',
     'taggit',
+    'django_admin_inline_paginator',
     'budget',
     'account',
 ]

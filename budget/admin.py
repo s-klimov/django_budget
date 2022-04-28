@@ -1,4 +1,5 @@
 from django.contrib import admin
+from django_admin_inline_paginator.admin import TabularInlinePaginated
 
 from budget.models import (
     BankAccount,
@@ -9,26 +10,28 @@ from budget.models import (
     IncomeCategory,
     IncomeSubCategory,
     Transfer,
-    History,
 )
 
 
-class HistoryInline(admin.TabularInline):
-    verbose_name = "операции"
-    verbose_name_plural = "история операций"
-    model = History
-    exclude = ("id", )
+class IncomeInline(TabularInlinePaginated):
+    model = Income
+    fields = ("operation_date", "sub_category", "value", "bank_account", )
     extra = 0
-    ordering = ("-operation_date", "bank_account", "type", )
+    ordering = ("-operation_date", "bank_account", )
+    classes = ('collapse',)
+    per_page = 5
 
-    def has_change_permission(self, request, obj=None):
-        return False
 
-    def has_add_permission(self, request, obj=None):
-        return False
+class ExpenditureInline(IncomeInline):
+    model = Expenditure
+    per_page = 10
 
-    def has_delete_permission(self, request, obj=None):
-        return False
+
+class TransferInline(IncomeInline):
+    model = Transfer
+    fields = ("operation_date", "bank_account", "value", "bank_account_to", )
+    fk_name = "bank_account"
+    per_page = 8
 
 
 @admin.register(BankAccount)
@@ -39,7 +42,9 @@ class BankAccountAdmin(admin.ModelAdmin):
     save_on_top = True
 
     inlines = [
-        HistoryInline,
+        ExpenditureInline,
+        TransferInline,
+        IncomeInline,
     ]
 
 
@@ -48,7 +53,7 @@ class ExpenditureAdmin(admin.ModelAdmin):
     list_display = ("value", "bank_account", "operation_date", )
     list_editable = ("operation_date", )
     exclude = ("deleted_at", )
-    list_per_page = 10
+    list_per_page = 20
 
 
 @admin.register(Income)

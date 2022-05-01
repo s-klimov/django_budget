@@ -14,19 +14,40 @@
     {% if object_list %}
         <table>
             <tr>
-                <th width="30%">Дата</th>
-                <th width="10%">Сумма</th>
-                <th width="10%">Счет</th>
+                <th width="10%">операция</th>
+                <th width="10%">дата</th>
+                <th width="10%">сумма</th>
+                <th width="10%">счет</th>
+                <th width="10%">комментарий</th>
+                <th width="10%"></th>
             </tr>
             {% for item in object_list %}
             <tr>
+                <td>{{ item.kind }}</td>
                 <td>{{ item.operation_date }}</td>
-                <td>{{ item.value }}</td>
+                <td><a href="/edit/{{ item.id }}">{{ item.value }}</a></td>
                 <td>{{ item.bank_account }}</td>
+                <td>{{ item.comment }}</td>
+                <td><form action="/delete/" method="post"><input type="submit" value="X"></form></td>
             </tr>
             {% endfor %}
         </table>
-
+        {# .... **Now the pagination section** .... #}
+        {% if is_paginated %}
+            <div class="pagination">
+                <span class="page-links">
+                    {% if page_obj.has_previous %}
+                        <a href="/?page={{ page_obj.previous_page_number }}">previous</a>
+                    {% endif %}
+                    <span class="page-current">
+                        Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}.
+                    </span>
+                    {% if page_obj.has_next %}
+                        <a href="/?page={{ page_obj.next_page_number }}">next</a>
+                    {% endif %}
+                </span>
+            </div>
+        {% endif %}
     {% else %}
         <p>Таблица доходов/расходов пуста</p>
     {% endif %}

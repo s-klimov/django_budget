@@ -3,7 +3,7 @@ import uuid
 from django.db.models import Sum, Q, F
 from django.utils import timezone
 from timestamps.models import models, Model
-
+from timestamps.models import models, Model
 
 class BankAccount(Model):
     name = models.CharField(

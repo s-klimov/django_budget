@@ -1,7 +1,4 @@
-import datetime
-
 from django import forms
-from django.forms import SelectDateWidget
 
 from budget.models import Income, Expenditure, Transfer
 

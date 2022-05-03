@@ -1,9 +1,8 @@
 from django.conf import settings
 from django.contrib import messages
 from django.http import HttpResponseRedirect
-from django.shortcuts import redirect
-from django.urls import reverse
-from django.views.generic import ListView, DetailView
+from django.urls import reverse, reverse_lazy
+from django.views.generic import ListView, DetailView, DeleteView
 
 from budget.services import get_cashflows, get_cashflow_model, get_modelform
 
@@ -36,3 +35,11 @@ class EditCashFlow(DetailView):
             return HttpResponseRedirect(reverse("budget-list"))
         else:
             messages.error(request, form.errors)
+
+
+class DeleteCashFlow(DeleteView):
+    success_url = reverse_lazy("budget-list")
+
+    def get_queryset(self):
+        id = self.kwargs[self.pk_url_kwarg]
+        return get_cashflow_model(id).objects.all()

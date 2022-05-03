@@ -25,10 +25,15 @@
             <tr>
                 <td>{{ item.kind }}</td>
                 <td>{{ item.operation_date }}</td>
-                <td><a href={% url 'budget-edit' item.id %}>{{ item.value }}</a></td>
+                <td><a href={% url 'cashflow-edit' item.id %}>{{ item.value }}</a></td>
                 <td>{{ item.bank_account }}</td>
                 <td>{{ item.comment }}</td>
-                <td><form action="/delete/" method="post"><input type="submit" value="X"></form></td>
+                <td>
+                    <form action={% url 'cashflow-delete' item.id %} method="post">
+                        {% csrf_token %}
+                        <input type="submit" value="удалить">
+                    </form>
+                </td>
             </tr>
             {% endfor %}
         </table>

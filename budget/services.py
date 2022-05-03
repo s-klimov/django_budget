@@ -3,24 +3,31 @@ from uuid import UUID
 from django import forms
 from django.db.models import Value, CharField, F
 from django.http import Http404
+from django.shortcuts import get_object_or_404
 
 from budget.forms import IncomeForm, ExpenditureForm, TransferForm
-from budget.models import Income, Expenditure, Transfer
+from budget.models import Income, Expenditure, Transfer, BankAccount
 from timestamps.models import Model
 
 
-def get_cashflows():
-    incomes = Income.objects.all().annotate(
+def get_cashflows(bank_account_id=None):
+    bank_account = get_object_or_404(BankAccount, id=bank_account_id) if bank_account_id else None
+    manager = Income.objects.all() if not bank_account else Income.objects.filter(bank_account=bank_account)
+    incomes = manager.annotate(
         kind=Value("+", output_field=CharField())
     ).annotate(
         comment=F("sub_category__name")
     )
-    expenditures = Expenditure.objects.all().annotate(
+
+    manager = Expenditure.objects.all() if not bank_account else Expenditure.objects.filter(bank_account=bank_account)
+    expenditures = manager.annotate(
         kind=Value("-", output_field=CharField())
     ).annotate(
         comment=F("sub_category__name")
     )
-    transfers = Transfer.objects.all().annotate(
+
+    manager = Transfer.objects.all() if not bank_account else Transfer.objects.filter(bank_account=bank_account)
+    transfers = manager.annotate(
         kind=Value("->", output_field=CharField())
     ).annotate(
         comment=F("bank_account_to__name")

@@ -13,6 +13,10 @@
     <a href={%  url 'expenditure-create' %}>Добавить расход</a>
     <a href={%  url 'transfer-create' %}>Добавить перевод</a>
     <a href={%  url 'income-create' %}>Добавить доход</a>
+    <br>
+    {% for bank_account in bank_accounts %}
+        <a href={%  url 'budget-list' bank_account.id %}>{{ bank_account.name }}</a>
+    {% endfor %}
 
     {% if object_list %}
         <table>

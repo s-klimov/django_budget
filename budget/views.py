@@ -1,8 +1,9 @@
 from django.conf import settings
 from django.contrib import messages
-from django.contrib.auth.decorators import login_required, permission_required
+from django.contrib.auth.decorators import permission_required
 from django.contrib.auth.mixins import PermissionRequiredMixin
 from django.http import HttpResponseRedirect
+from django.shortcuts import get_object_or_404
 from django.urls import reverse, reverse_lazy
 from django.utils.decorators import method_decorator
 from django.views.generic import ListView, DetailView, DeleteView, CreateView
@@ -23,6 +24,7 @@ class LastOperations(ListView):
     def get_context_data(self, *, object_list=None, **kwargs):
         context = super(LastOperations, self).get_context_data(object_list=None, **kwargs)
         context["bank_accounts"] = BankAccount.objects.filter(is_active=True)
+        context["current_bank_account"] = BankAccount.objects.get(id=self.kwargs['account']) if self.kwargs.get('account') else None
         return context
 
     @method_decorator(permission_required('budget.view_income'))
@@ -49,7 +51,9 @@ class EditCashFlow(DetailView):
         form = get_modelform(instance)(request.POST, instance=instance)
         if form.is_valid():
             form.save()
-            return HttpResponseRedirect(reverse("budget-list"))
+            kwargs = {"account": self.kwargs['account']} if self.kwargs.get('account') else None
+            success_url = reverse("budget-list", kwargs=kwargs)
+            return HttpResponseRedirect(success_url)
         else:
             messages.error(request, form.errors)
 
@@ -61,7 +65,6 @@ class EditCashFlow(DetailView):
 
 
 class DeleteCashFlow(DeleteView):
-    success_url = reverse_lazy("budget-list")
 
     def get_queryset(self):
         id = self.kwargs[self.pk_url_kwarg]
@@ -73,26 +76,65 @@ class DeleteCashFlow(DeleteView):
     def dispatch(self, request, *args, **kwargs):
         return super().dispatch(request, *args, **kwargs)
 
+    def get_success_url(self):
+        print(self.kwargs)
+        if self.kwargs.get('account'):
+            return reverse("budget-list", kwargs={"account": self.kwargs['account']})
+        return reverse_lazy("budget-list")
+
 
 class IncomeCreate(PermissionRequiredMixin, CreateView):
     model = Income
     fields = ["bank_account", "operation_date", "value", "sub_category"]
     template_name = "budget/cashflow_edit.html"
-    success_url = reverse_lazy("budget-list")
     permission_required = "budget.add_income"
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        if self.kwargs.get('account'):
+            bank_account = get_object_or_404(BankAccount, id=self.kwargs['account'])
+            kwargs["initial"]['bank_account'] = bank_account
+        return kwargs
+
+    def get_success_url(self):
+        if self.kwargs.get('account'):
+            return reverse("budget-list", kwargs={"account": self.kwargs['account']})
+        return reverse_lazy("budget-list")
 
 
 class ExpenditureCreate(PermissionRequiredMixin, CreateView):
     model = Expenditure
     fields = ["bank_account", "operation_date", "value", "sub_category"]
     template_name = "budget/cashflow_edit.html"
-    success_url = reverse_lazy("budget-list")
     permission_required = "expenditure.add_expenditure"
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        if self.kwargs.get('account'):
+            bank_account = get_object_or_404(BankAccount, id=self.kwargs['account'])
+            kwargs["initial"]['bank_account'] = bank_account
+        return kwargs
+
+    def get_success_url(self):
+        if self.kwargs.get('account'):
+            return reverse("budget-list", kwargs={"account": self.kwargs['account']})
+        return reverse_lazy("budget-list")
 
 
 class TransferCreate(PermissionRequiredMixin, CreateView):
     model = Transfer
     fields = ["bank_account", "operation_date", "value", "bank_account_to"]
     template_name = "budget/cashflow_edit.html"
-    success_url = reverse_lazy("budget-list")
     permission_required = "transfer.add_transfer"
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        if self.kwargs.get('account'):
+            bank_account = get_object_or_404(BankAccount, id=self.kwargs['account'])
+            kwargs["initial"]['bank_account'] = bank_account
+        return kwargs
+
+    def get_success_url(self):
+        if self.kwargs.get('account'):
+            return reverse("budget-list", kwargs={"account": self.kwargs['account']})
+        return reverse_lazy("budget-list")

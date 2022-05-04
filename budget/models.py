@@ -2,9 +2,8 @@ import uuid
 
 from django.db.models import Sum, Q, F
 from django.utils import timezone
-from taggit.managers import TaggableManager
 from timestamps.models import models, Model
-
+from timestamps.models import models, Model
 
 class BankAccount(Model):
     name = models.CharField(
@@ -128,11 +127,6 @@ class Income(CashFlow):
 class Expenditure(CashFlow):
     sub_category = models.ForeignKey(
         ExpenditureSubCategory, on_delete=models.CASCADE, verbose_name="категория"
-    )
-    tags = TaggableManager(
-        verbose_name="для расширенных отчетов",
-        blank=True,
-        help_text="введите через запятую названия аналитических групп"
     )
 
     class Meta:

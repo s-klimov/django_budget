@@ -7,7 +7,7 @@ from django.urls import reverse, reverse_lazy
 from django.utils.decorators import method_decorator
 from django.views.generic import ListView, DetailView, DeleteView, CreateView
 
-from budget.models import Income, Expenditure, Transfer
+from budget.models import Income, Expenditure, Transfer, BankAccount
 from budget.services import get_cashflows, get_cashflow_model, get_modelform
 
 
@@ -16,7 +16,14 @@ class LastOperations(ListView):
     paginate_by = settings.PAGINATE_BY
 
     def get_queryset(self):
-        return get_cashflows()
+        return get_cashflows(
+            bank_account_id=self.kwargs.get('account')
+        )
+
+    def get_context_data(self, *, object_list=None, **kwargs):
+        context = super(LastOperations, self).get_context_data(object_list=None, **kwargs)
+        context["bank_accounts"] = BankAccount.objects.filter(is_active=True)
+        return context
 
     @method_decorator(permission_required('budget.view_income'))
     @method_decorator(permission_required('budget.view_expenditure'))

@@ -10,12 +10,18 @@
     </style>
 </head>
 <body>
-    <a href={%  url 'expenditure-create' %}>Добавить расход</a>
-    <a href={%  url 'transfer-create' %}>Добавить перевод</a>
-    <a href={%  url 'income-create' %}>Добавить доход</a>
+    {% if current_account %}
+        <a href={% url 'expenditure-create' account=current_account %}>Добавить расход</a>
+        <a href={% url 'transfer-create' account=current_account %}>Добавить перевод</a>
+        <a href={% url 'income-create' account=current_account %}>Добавить доход</a>
+    {% else %}
+        <a href={% url 'expenditure-create' %}>Добавить расход</a>
+        <a href={% url 'transfer-create' %}>Добавить перевод</a>
+        <a href={% url 'income-create' %}>Добавить доход</a>
+    {% endif %}
     <br>
     {% for bank_account in bank_accounts %}
-        <a href={%  url 'budget-list' bank_account.id %}>{{ bank_account.name }}</a>
+        <a href={% url 'budget-list' bank_account.id %}>{{ bank_account.name }}</a>
     {% endfor %}
 
     {% if object_list %}
@@ -32,11 +38,20 @@
             <tr>
                 <td>{{ item.kind }}</td>
                 <td>{{ item.operation_date }}</td>
-                <td><a href={% url 'cashflow-edit' item.id %}>{{ item.value }}</a></td>
+                {% if current_account %}
+                    <td><a href={% url 'cashflow-edit' account=current_account pk=item.id %}>{{ item.value }}</a></td>
+                {% else %}
+                    <td><a href={% url 'cashflow-edit' pk=item.id %}>{{ item.value }}</a></td>
+                {% endif %}
                 <td>{{ item.bank_account }}</td>
                 <td>{{ item.comment }}</td>
                 <td>
-                    <form action={% url 'cashflow-delete' item.id %} method="post">
+                    <form action=
+                            {% if current_account %}
+                                  {% url 'cashflow-delete' account=current_account pk=item.id %}
+                            {% else %}
+                                {% url 'cashflow-delete' pk=item.id %}
+                            {% endif %} method="post">
                         {% csrf_token %}
                         <input type="submit" value="удалить">
                     </form>
@@ -55,7 +70,7 @@
                         Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}.
                     </span>
                     {% if page_obj.has_next %}
-                        <a href="/?page={{ page_obj.next_page_number }}">next</a>
+                        <a href="?page={{ page_obj.next_page_number }}">next</a>
                     {% endif %}
                 </span>
             </div>

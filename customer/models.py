@@ -23,7 +23,7 @@ class Profile(Model):
 
 
 class Household(Model):
-    user = models.ForeignKey(User, verbose_name="пользователь", db_index=True, on_delete=models.CASCADE)
+    user = models.OneToOneField(User, verbose_name="пользователь", db_index=True, on_delete=models.CASCADE)
     members = models.ManyToManyField(Profile, verbose_name="участники домохозяйства")
 
     def __str__(self):

@@ -3,9 +3,11 @@ import uuid
 from django.db.models import Sum, Q, F
 from django.utils import timezone
 from timestamps.models import models, Model
+from customer.models import Profile
 
 
 class BankAccount(Model):
+    profile = models.ForeignKey(Profile, on_delete=models.CASCADE, related_name='accounts')
     name = models.CharField(
         max_length=200, verbose_name="название", db_index=True, unique=True
     )
@@ -42,6 +44,7 @@ class Category(Model):
 
 
 class IncomeCategory(Category):
+    profile = models.ForeignKey(Profile,  null=True, on_delete=models.CASCADE, related_name='incomecategory')
 
     class Meta:
         ordering = ("name",)
@@ -50,6 +53,7 @@ class IncomeCategory(Category):
 
 
 class ExpenditureCategory(Category):
+    profile = models.ForeignKey(Profile, null=True, on_delete=models.CASCADE, related_name='expenditurecategory')
 
     class Meta:
         ordering = ("name",)
@@ -71,6 +75,7 @@ class SubCategory(Model):
 
 
 class IncomeSubCategory(SubCategory):
+    # profile = models.ForeignKey(Profile,  null=True, on_delete=models.CASCADE, related_name='incomesubcategory')
     category = models.ForeignKey(
         IncomeCategory, on_delete=models.CASCADE, verbose_name="категория"
     )
@@ -83,6 +88,7 @@ class IncomeSubCategory(SubCategory):
 
 
 class ExpenditureSubCategory(SubCategory):
+    # profile = models.ForeignKey(Profile,  null=True, on_delete=models.CASCADE, related_name='expendituresubcategory')
     category = models.ForeignKey(
         ExpenditureCategory, on_delete=models.CASCADE, verbose_name="категория"
     )

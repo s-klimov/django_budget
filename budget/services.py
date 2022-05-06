@@ -10,16 +10,16 @@ from budget.models import Income, Expenditure, Transfer, BankAccount
 from timestamps.models import Model
 
 
-def get_cashflows(bank_account_id=None):
+def get_cashflows(profile, bank_account_id=None):
     bank_account = get_object_or_404(BankAccount, id=bank_account_id) if bank_account_id else None
-    manager = Income.objects.all() if not bank_account else Income.objects.filter(bank_account=bank_account)
+    manager = Income.objects.filter(sub_category__category__profile=profile) if not bank_account else Income.objects.filter(bank_account=bank_account)
     incomes = manager.annotate(
         kind=Value("+", output_field=CharField())
     ).annotate(
         comment=F("sub_category__name")
     )
 
-    manager = Expenditure.objects.all() if not bank_account else Expenditure.objects.filter(bank_account=bank_account)
+    manager = Expenditure.objects.filter(sub_category__category__profile=profile) if not bank_account else Expenditure.objects.filter(bank_account=bank_account)
     expenditures = manager.annotate(
         kind=Value("-", output_field=CharField())
     ).annotate(

@@ -143,6 +143,6 @@ TAGGIT_CASE_INSENSITIVE = True
 
 AUTHENTICATION_BACKENDS = ['account.auth_backends.EmailBackend']
 
-PAGINATE_BY = 25
+PAGINATE_BY = 15
 
 LOGIN_URL = "http://localhost:8000/admin/login/?next=/admin/"

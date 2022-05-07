@@ -10,8 +10,8 @@ from budget.models import Income, Expenditure, Transfer, BankAccount
 from timestamps.models import Model
 
 
-def get_cashflows(bank_account_id=None):
-    bank_account = get_object_or_404(BankAccount, id=bank_account_id) if bank_account_id else None
+def get_cashflows(bank_account_slug=None):
+    bank_account = get_object_or_404(BankAccount, slug=bank_account_slug) if bank_account_slug else None
     manager = Income.objects.all() if not bank_account else Income.objects.filter(bank_account=bank_account)
     incomes = manager.annotate(
         comment=F("sub_category__name"),

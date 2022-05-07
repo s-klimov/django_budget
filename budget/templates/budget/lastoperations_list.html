@@ -25,7 +25,7 @@
     Фильтры:
     <br>
     {% for bank_account in bank_accounts %}
-        <a href={% url 'budget-list' bank_account.id %}>{{ bank_account.name }}: {{ bank_account.outcoming_balance }}</a>
+        <a href={% url 'budget-list' bank_account.slug %}>{{ bank_account.name }}: {{ bank_account.outcoming_balance }}</a>
         <br>
     {% endfor %}
     <a href={% url 'budget-list' %}>Все счета</a>

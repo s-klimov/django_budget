@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import permission_required
@@ -8,6 +10,7 @@ from django.urls import reverse, reverse_lazy
 from django.utils.decorators import method_decorator
 from django.views.generic import ListView, DetailView, DeleteView, CreateView
 
+from budget.forms import TransferForm, ExpenditureForm, IncomeForm
 from budget.models import Income, Expenditure, Transfer, BankAccount
 from budget.services import get_cashflows, get_cashflow_model, get_modelform
 
@@ -85,9 +88,10 @@ class DeleteCashFlow(DeleteView):
 
 class IncomeCreate(PermissionRequiredMixin, CreateView):
     model = Income
-    fields = ["bank_account", "operation_date", "value", "sub_category"]
+    # fields = ["bank_account", "operation_date", "value", "sub_category"]
     template_name = "budget/cashflow_edit.html"
     permission_required = "budget.add_income"
+    form_class = IncomeForm
 
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
@@ -104,9 +108,10 @@ class IncomeCreate(PermissionRequiredMixin, CreateView):
 
 class ExpenditureCreate(PermissionRequiredMixin, CreateView):
     model = Expenditure
-    fields = ["bank_account", "operation_date", "value", "sub_category"]
+    # fields = ["bank_account", "operation_date", "value", "sub_category"]
     template_name = "budget/cashflow_edit.html"
     permission_required = "expenditure.add_expenditure"
+    form_class = ExpenditureForm
 
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
@@ -123,9 +128,10 @@ class ExpenditureCreate(PermissionRequiredMixin, CreateView):
 
 class TransferCreate(PermissionRequiredMixin, CreateView):
     model = Transfer
-    fields = ["bank_account", "operation_date", "value", "bank_account_to"]
+    # fields = ["bank_account", "operation_date", "value", "bank_account_to"]
     template_name = "budget/cashflow_edit.html"
     permission_required = "transfer.add_transfer"
+    form_class = TransferForm
 
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()

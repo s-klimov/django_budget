@@ -1,15 +1,11 @@
-<!DOCTYPE html>
-<html lang="ru">
-<head>
-    <meta charset="UTF-8">
-    <title>Последние операции</title>
+{% extends "budget/base.html" %}
+{% block content %}
+
     <style type="text/css">
         table {border: 1px solid grey;}
         th {border: 1px solid grey; text-align: center}
         td {border: 1px solid grey; text-align: center}
     </style>
-</head>
-<body>
     {% if current_account %}
         <a href={% url 'expenditure-create' account=current_account %}>Добавить расход</a>
         <a href={% url 'transfer-create' account=current_account %}>Добавить перевод</a>
@@ -19,16 +15,6 @@
         <a href={% url 'transfer-create' %}>Добавить перевод</a>
         <a href={% url 'income-create' %}>Добавить доход</a>
     {% endif %}
-
-    <br>
-    <br>
-    Фильтры:
-    <br>
-    {% for bank_account in bank_accounts %}
-        <a href={% url 'budget-list' bank_account.slug %}>{{ bank_account.name }}: {{ bank_account.outcoming_balance }}</a>
-        <br>
-    {% endfor %}
-    <a href={% url 'budget-list' %}>Все счета</a>
 
     {% if object_list %}
         <table>
@@ -83,5 +69,4 @@
         <p>Таблица доходов/расходов пуста</p>
     {% endif %}
 
-</body>
-</html>
+{% endblock %}

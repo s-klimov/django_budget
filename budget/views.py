@@ -14,7 +14,7 @@ from budget.services import get_cashflows, get_cashflow_model, get_modelform
 
 
 class LastOperations(ListView):
-    template_name = 'budget/lastoperations_list.html'
+    template_name = 'budget/lastoperations.html'
     paginate_by = settings.PAGINATE_BY
 
     def get_queryset(self):

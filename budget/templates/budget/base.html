@@ -1,0 +1,14 @@
+{% extends "base_2col.html" %}
+
+{% block title %}
+{% endblock %}
+
+{% block sidebar %}
+	{% block tags %}
+	{% endblock %}
+
+	{% block recent %}
+        {% load bank_accounts %}
+        {% tag_accounts_list %}
+	{% endblock %}
+{% endblock %}

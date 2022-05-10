@@ -3,7 +3,21 @@ import uuid
 from django.db.models import Sum, Q, F
 from django.utils import timezone
 from timestamps.models import models, Model
+
+from django.template.defaultfilters import slugify as django_slugify
 from customer.models import Profile
+
+alphabet = {'а': 'a', 'б': 'b', 'в': 'v', 'г': 'g', 'д': 'd', 'е': 'e', 'ё': 'yo', 'ж': 'zh', 'з': 'z', 'и': 'i',
+            'й': 'j', 'к': 'k', 'л': 'l', 'м': 'm', 'н': 'n', 'о': 'o', 'п': 'p', 'р': 'r', 'с': 's', 'т': 't',
+            'у': 'u', 'ф': 'f', 'х': 'kh', 'ц': 'ts', 'ч': 'ch', 'ш': 'sh', 'щ': 'shch', 'ы': 'i', 'э': 'e', 'ю': 'yu',
+            'я': 'ya'}
+
+
+def slugify(s):
+    """
+    Overriding django slugify that allows to use russian words as well.
+    """
+    return django_slugify(''.join(alphabet.get(w, w) for w in s.lower()))
 
 
 class BankAccount(Model):
@@ -13,6 +27,7 @@ class BankAccount(Model):
     )
     incoming_balance = models.DecimalField(verbose_name="входящий остаток", max_digits=10, decimal_places=2)
     is_active = models.BooleanField(verbose_name='счет используется', default=True)
+    slug = models.SlugField(max_length=250, unique=True, blank=True)
 
     @property
     def outcoming_balance(self):
@@ -29,6 +44,10 @@ class BankAccount(Model):
 
     def __str__(self):
         return self.name
+
+    def save(self, *args, **kwargs):
+        self.slug = slugify(self.name)
+        super().save(*args, **kwargs)
 
 
 class Category(Model):
@@ -75,7 +94,6 @@ class SubCategory(Model):
 
 
 class IncomeSubCategory(SubCategory):
-    # profile = models.ForeignKey(Profile,  null=True, on_delete=models.CASCADE, related_name='incomesubcategory')
     category = models.ForeignKey(
         IncomeCategory, on_delete=models.CASCADE, verbose_name="категория"
     )
@@ -88,7 +106,6 @@ class IncomeSubCategory(SubCategory):
 
 
 class ExpenditureSubCategory(SubCategory):
-    # profile = models.ForeignKey(Profile,  null=True, on_delete=models.CASCADE, related_name='expendituresubcategory')
     category = models.ForeignKey(
         ExpenditureCategory, on_delete=models.CASCADE, verbose_name="категория"
     )

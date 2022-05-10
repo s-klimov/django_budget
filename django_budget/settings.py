@@ -9,7 +9,7 @@ https://docs.djangoproject.com/en/4.0/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/4.0/ref/settings/
 """
-import os
+
 from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -46,6 +46,7 @@ INSTALLED_APPS = [
     'budget',
     'account',
     'customer',
+    'bootstrap5',
 ]
 
 MIDDLEWARE = [
@@ -63,8 +64,7 @@ ROOT_URLCONF = 'django_budget.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [BASE_DIR / 'templates']
-        ,
+        'DIRS': [BASE_DIR / 'templates'],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -84,10 +84,6 @@ WSGI_APPLICATION = 'django_budget.wsgi.application'
 # https://docs.djangoproject.com/en/4.0/ref/settings/#databases
 
 DATABASES = {
-    # 'default': {
-    #     'ENGINE': 'django.db.backends.sqlite3',
-    #     'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
-    # }
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
         'OPTIONS': {
@@ -148,6 +144,6 @@ TAGGIT_CASE_INSENSITIVE = True
 
 AUTHENTICATION_BACKENDS = ['account.auth_backends.EmailBackend']
 
-PAGINATE_BY = 25
+PAGINATE_BY = 15
 
 LOGIN_URL = "http://localhost:8000/admin/login/?next=/admin/"

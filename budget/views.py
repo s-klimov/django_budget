@@ -8,24 +8,25 @@ from django.urls import reverse, reverse_lazy
 from django.utils.decorators import method_decorator
 from django.views.generic import ListView, DetailView, DeleteView, CreateView
 
+from budget.forms import TransferForm, ExpenditureForm, IncomeForm
 from budget.models import Income, Expenditure, Transfer, BankAccount
 from budget.services import get_cashflows, get_cashflow_model, get_modelform
 
 
 class LastOperations(ListView):
-    template_name = 'budget/lastoperations_list.html'
+    template_name = 'budget/lastoperations.html'
     paginate_by = settings.PAGINATE_BY
 
     def get_queryset(self):
         return get_cashflows(
-            bank_account_id=self.kwargs.get('account'),
+            bank_account_slug=self.kwargs.get('account'),
             profile=self.request.user.profile
         )
 
     def get_context_data(self, *, object_list=None, **kwargs):
         context = super(LastOperations, self).get_context_data(object_list=None, **kwargs)
         context["bank_accounts"] = BankAccount.objects.filter(is_active=True, profile=self.request.user.profile)
-        context["current_bank_account"] = BankAccount.objects.get(id=self.kwargs['account']) if self.kwargs.get('account') else None
+        context["current_account"] = BankAccount.objects.get(slug=self.kwargs['account']).slug if self.kwargs.get('account') else None
         return context
 
     @method_decorator(permission_required('budget.view_income'))
@@ -86,14 +87,14 @@ class DeleteCashFlow(DeleteView):
 
 class IncomeCreate(PermissionRequiredMixin, CreateView):
     model = Income
-    fields = ["bank_account", "operation_date", "value", "sub_category"]
     template_name = "budget/cashflow_edit.html"
     permission_required = "budget.add_income"
+    form_class = IncomeForm
 
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
         if self.kwargs.get('account'):
-            bank_account = get_object_or_404(BankAccount, id=self.kwargs['account'])
+            bank_account = get_object_or_404(BankAccount, slug=self.kwargs['account'])
             kwargs["initial"]['bank_account'] = bank_account
         return kwargs
 
@@ -105,14 +106,14 @@ class IncomeCreate(PermissionRequiredMixin, CreateView):
 
 class ExpenditureCreate(PermissionRequiredMixin, CreateView):
     model = Expenditure
-    fields = ["bank_account", "operation_date", "value", "sub_category"]
     template_name = "budget/cashflow_edit.html"
     permission_required = "expenditure.add_expenditure"
+    form_class = ExpenditureForm
 
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
         if self.kwargs.get('account'):
-            bank_account = get_object_or_404(BankAccount, id=self.kwargs['account'])
+            bank_account = get_object_or_404(BankAccount, slug=self.kwargs['account'])
             kwargs["initial"]['bank_account'] = bank_account
         return kwargs
 
@@ -124,14 +125,14 @@ class ExpenditureCreate(PermissionRequiredMixin, CreateView):
 
 class TransferCreate(PermissionRequiredMixin, CreateView):
     model = Transfer
-    fields = ["bank_account", "operation_date", "value", "bank_account_to"]
     template_name = "budget/cashflow_edit.html"
     permission_required = "transfer.add_transfer"
+    form_class = TransferForm
 
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
         if self.kwargs.get('account'):
-            bank_account = get_object_or_404(BankAccount, id=self.kwargs['account'])
+            bank_account = get_object_or_404(BankAccount, slug=self.kwargs['account'])
             kwargs["initial"]['bank_account'] = bank_account
         return kwargs
 

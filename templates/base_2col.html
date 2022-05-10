@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+
+{% block page %}
+    <div class="row g-0">
+      <div class="col-sm-6 col-md-8">
+        {% block content %}
+        {% endblock %}
+      </div>
+      <div class="col-6 col-md-4">
+        {% block sidebar %}
+        {% endblock %}
+      </div>
+    </div>
+
+
+
+{% endblock %}

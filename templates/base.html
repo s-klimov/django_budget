@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="ru">
+<meta charset="UTF-8">
+{% load bootstrap5 %}{% bootstrap_css %}{% bootstrap_javascript %}{% bootstrap_messages %}
+
+<div class="container-fluid" align="right">
+{% block head %}
+	{% block title %}{% endblock %}
+	{% block menu %}
+        {% load auth_menu %}
+        {% tag_account_menu %}
+	{% endblock %}
+{% endblock %}
+</div>
+
+{% block page %}
+	{% block content %}
+	{% endblock %}
+{% endblock %}
+
+{% block footer %}
+	{% block copyright %}
+	{% endblock %}
+{% endblock %}
+</html>

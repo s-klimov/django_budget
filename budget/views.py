@@ -9,7 +9,7 @@ from django.utils.decorators import method_decorator
 from django.views.generic import ListView, DetailView, DeleteView, CreateView
 
 from budget.forms import TransferForm, ExpenditureForm, IncomeForm
-from budget.models import Income, Expenditure, Transfer, BankAccount
+from budget.models import Income, Expenditure, Transfer, BankAccount, IncomeSubCategory, ExpenditureSubCategory
 from budget.services import get_cashflows, get_cashflow_model, get_modelform
 
 
@@ -26,7 +26,9 @@ class LastOperations(ListView):
     def get_context_data(self, *, object_list=None, **kwargs):
         context = super(LastOperations, self).get_context_data(object_list=None, **kwargs)
         context["bank_accounts"] = BankAccount.objects.filter(is_active=True, profile=self.request.user.profile)
-        context["current_account"] = BankAccount.objects.get(slug=self.kwargs['account']).slug if self.kwargs.get('account') else None
+        context["current_account"] = BankAccount.objects.get(slug=self.kwargs['account'],
+                                                             profile=self.request.user.profile).slug \
+            if self.kwargs.get('account') else None
         return context
 
     @method_decorator(permission_required('budget.view_income'))
@@ -43,9 +45,27 @@ class EditCashFlow(DetailView):
         id = self.kwargs[self.pk_url_kwarg]
         return get_cashflow_model(id).objects.all()
 
+    def form_fields_filter(self, form):
+        form.fields['bank_account'].queryset = BankAccount.objects.filter(profile=self.request.user.profile)
+        form_class_name = type(form).__name__
+
+        match form_class_name:
+            case 'TransferForm':
+                form.fields['bank_account_to'].queryset = BankAccount.objects.filter(profile=self.request.user.profile)
+            case 'IncomeForm':
+                form.fields['sub_category'].queryset = IncomeSubCategory.\
+                    objects.filter(category__profile=self.request.user.profile)
+            case 'ExpenditureForm':
+                form.fields['sub_category'].queryset = ExpenditureSubCategory. \
+                    objects.filter(category__profile=self.request.user.profile)
+
+        return form
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context["form"] = get_modelform(self.object)(instance=self.object)
+        form = get_modelform(self.object)(instance=self.object)
+        form = self.form_fields_filter(form)
+        context["form"] = form
         return context
 
     def post(self, request, *args, **kwargs):
@@ -79,7 +99,6 @@ class DeleteCashFlow(DeleteView):
         return super().dispatch(request, *args, **kwargs)
 
     def get_success_url(self):
-        print(self.kwargs)
         if self.kwargs.get('account'):
             return reverse("budget-list", kwargs={"account": self.kwargs['account']})
         return reverse_lazy("budget-list")
@@ -103,6 +122,15 @@ class IncomeCreate(PermissionRequiredMixin, CreateView):
             return reverse("budget-list", kwargs={"account": self.kwargs['account']})
         return reverse_lazy("budget-list")
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        form = context.get('form')
+        form.fields['bank_account'].queryset = BankAccount.objects.filter(profile=self.request.user.profile)
+        form.fields['sub_category'].queryset = IncomeSubCategory. \
+            objects.filter(category__profile=self.request.user.profile)
+        context["form"] = form
+        return context
+
 
 class ExpenditureCreate(PermissionRequiredMixin, CreateView):
     model = Expenditure
@@ -122,6 +150,15 @@ class ExpenditureCreate(PermissionRequiredMixin, CreateView):
             return reverse("budget-list", kwargs={"account": self.kwargs['account']})
         return reverse_lazy("budget-list")
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        form = context.get('form')
+        form.fields['bank_account'].queryset = BankAccount.objects.filter(profile=self.request.user.profile)
+        form.fields['sub_category'].queryset = ExpenditureSubCategory. \
+            objects.filter(category__profile=self.request.user.profile)
+        context["form"] = form
+        return context
+
 
 class TransferCreate(PermissionRequiredMixin, CreateView):
     model = Transfer
@@ -140,3 +177,11 @@ class TransferCreate(PermissionRequiredMixin, CreateView):
         if self.kwargs.get('account'):
             return reverse("budget-list", kwargs={"account": self.kwargs['account']})
         return reverse_lazy("budget-list")
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        form = context.get('form')
+        form.fields['bank_account'].queryset = BankAccount.objects.filter(profile=self.request.user.profile)
+        form.fields['bank_account_to'].queryset = BankAccount.objects.filter(profile=self.request.user.profile)
+        context["form"] = form
+        return context

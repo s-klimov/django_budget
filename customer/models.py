@@ -23,8 +23,9 @@ class Profile(Model):
 
 
 class Household(Model):
-    user = models.OneToOneField(User, verbose_name="пользователь", db_index=True, on_delete=models.CASCADE)
-    members = models.ManyToManyField(Profile, verbose_name="участники домохозяйства")
+    user = models.OneToOneField(User, verbose_name="пользователь", db_index=True,
+                                on_delete=models.CASCADE, related_name="household")
+    members = models.ManyToManyField(Profile, verbose_name="участники домохозяйства", related_name="household")
 
     def __str__(self):
         return "Домохозяйтсво {}".format(self.user)

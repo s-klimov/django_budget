@@ -27,14 +27,15 @@ def get_cashflows(profile, bank_account_slug=None):
         account=F("bank_account__name"),
     )
 
-    manager = Transfer.objects.all() if not bank_account else Transfer.objects.filter(bank_account=bank_account)
+    manager = Transfer.objects.filter(bank_account=bank_account)
     transfers_from = manager.annotate(
         comment=F("bank_account_to__name"),
         signed_value=-1 * F("value"),
         account=F("bank_account__name"),
     )
 
-    manager = Transfer.objects.all() if not bank_account else Transfer.objects.filter(bank_account_to=bank_account)
+    # manager = Transfer.objects.all() if not bank_account else Transfer.objects.filter(bank_account_to=bank_account)
+    manager = Transfer.objects.filter(bank_account_to=bank_account)
     transfers_to = manager.annotate(
         comment=F("bank_account__name"),
         signed_value=F("value"),

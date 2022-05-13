@@ -36,7 +36,7 @@ class LastOperations(ListView):
 
 
 class EditCashFlow(DetailView):
-    template_name = "budget/cashflow_edit.html"
+    template_name = "budget/jinja2/budget/cashflow_edit.html"
 
     def get_queryset(self):
         id = self.kwargs[self.pk_url_kwarg]
@@ -86,7 +86,7 @@ class DeleteCashFlow(DeleteView):
 
 class IncomeCreate(PermissionRequiredMixin, CreateView):
     model = Income
-    template_name = "budget/cashflow_edit.html"
+    template_name = "budget/jinja2/budget/cashflow_edit.html"
     permission_required = "budget.add_income"
     form_class = IncomeForm
 
@@ -105,7 +105,7 @@ class IncomeCreate(PermissionRequiredMixin, CreateView):
 
 class ExpenditureCreate(PermissionRequiredMixin, CreateView):
     model = Expenditure
-    template_name = "budget/cashflow_edit.html"
+    template_name = "budget/jinja2/budget/cashflow_edit.html"
     permission_required = "expenditure.add_expenditure"
     form_class = ExpenditureForm
 
@@ -124,7 +124,7 @@ class ExpenditureCreate(PermissionRequiredMixin, CreateView):
 
 class TransferCreate(PermissionRequiredMixin, CreateView):
     model = Transfer
-    template_name = "budget/cashflow_edit.html"
+    template_name = "budget/jinja2/budget/cashflow_edit.html"
     permission_required = "transfer.add_transfer"
     form_class = TransferForm
 

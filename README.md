@@ -11,5 +11,5 @@ docker-compose up --build
 # Деплой
 Пример команды копирования файлов на удаленный сервер
 ```commandline
-scp -i ~\.ssh\yandex-cloud -r budget sergey@51.250.48.190:/home/sergey/django_budget/home/sergey/django_budget
+scp -i ~\.ssh\yandex-cloud -r budget sergey@51.250.48.190:/home/sergey/django_budget
 ```

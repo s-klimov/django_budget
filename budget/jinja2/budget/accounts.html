@@ -4,5 +4,5 @@
     <a href={% url 'budget-list' bank_account.slug %}>{{ bank_account.name }}</a> - {{ bank_account.outcoming_balance }}
     <br>
 {% endfor %}
-<a href={% url 'budget-list' %}>Все счета</a>
+<a href={{ url('budget-list') }}>Все счета</a>
 </ul>

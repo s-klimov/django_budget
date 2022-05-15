@@ -52,7 +52,7 @@
 {#                            {% else %}#}
 {#                                {% url 'cashflow-delete' pk=item.id %}#}
 {#                            {% endif %} method="post">#}
-{#                        {% csrf_token %}#}
+{#                        <input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}">#}
 {#                        <input type="submit" value="удалить">#}
 {#                    </form>#}
 {#                </td>#}

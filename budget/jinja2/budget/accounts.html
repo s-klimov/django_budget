@@ -1,7 +1,7 @@
 <h6>ваши счета:</h6>
 <ul class="links">
 {% for bank_account in accounts_list %}
-    <a href={% url 'budget-list' bank_account.slug %}>{{ bank_account.name }}</a> - {{ bank_account.outcoming_balance }}
+    <a href={{ url('budget-list', args=[bank_account.slug]) }}>{{ bank_account.name }}</a> - {{ bank_account.outcoming_balance }}
     <br>
 {% endfor %}
 <a href={{ url('budget-list') }}>Все счета</a>

@@ -1,6 +1,0 @@
-{% if is_authenticated %}
-    {{ username }}
-    <a href={% url 'admin:logout' %}>Выйти</a>
-{% else %}
-    <a href={% url 'admin:login' %}>Войти</a>
-{% endif %}

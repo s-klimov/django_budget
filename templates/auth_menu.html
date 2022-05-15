@@ -1,0 +1,8 @@
+<div class="container-fluid" align="right">
+{% if request.user.is_authenticated %}
+    {{ request.user.username }}
+    <a href={{ url('admin:logout') }}>Выйти</a>
+{% else %}
+    <a href={{ url('admin:login') }}>Войти</a>
+{% endif %}
+</div>

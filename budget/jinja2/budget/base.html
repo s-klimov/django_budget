@@ -8,8 +8,6 @@
 	{% endblock %}
 
 	{% block recent %}
-        {% macro bank_accounts() -%}
-        {{ tag_accounts_list }}
-        {%- endmacro -%}
+        {% include "budget/accounts.html" %}
 	{% endblock %}
 {% endblock %}

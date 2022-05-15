@@ -19,11 +19,15 @@
     {% if object_list %}
         <ul class="list-group">
             {% for item in object_list %}
-                <li class={% if item.signed_value <= 0 %}"list-group-item list-group-item-danger"{% else %}"list-group-item list-group-item-success"{% endif %}>
-                    {{ item.operation_date }}
-                    {{ item.signed_value }}
-                    {{ item.account }}
-                    {{ item.comment }}
+                {% set li_class = "list-group-item list-group-item-success" %}
+                {% if item.signed_value <= 0 %}
+                    {% set li_class = "list-group-item list-group-item-danger" %}
+                {% endif %}
+                <li class="{{ li_class }}">
+                        {{ item.operation_date }}
+                        {{ item.signed_value }}
+                        {{ item.account }}
+                        {{ item.comment }}
                 </li>
             {% endfor %}
         </ul>
@@ -60,17 +64,22 @@
 {#            {% endfor %}#}
 {#        </table>#}
         {# .... **Now the pagination section** .... #}
+        {% set base_paginate_url = "?page=" %}
+        {% if current_account %}
+            {% set base_paginate_url = "?bank_account=" ~ current_account ~ "&page=" %}
+        {% endif %}
+
         {% if is_paginated %}
             <div class="pagination">
                 <span class="page-links">
-                    {% if page_obj.has_previous %}
-                        <a href="/?page={{ page_obj.previous_page_number }}">previous</a>
+                    {% if page_obj.has_previous() %}
+                        <a href="{{ base_paginate_url }}{{ page_obj.previous_page_number() }}">previous</a>
                     {% endif %}
                     <span class="page-current">
                         Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}.
                     </span>
-                    {% if page_obj.has_next %}
-                        <a href="?page={{ page_obj.next_page_number }}">next</a>
+                    {% if page_obj.has_next() %}
+                        <a href="{{ base_paginate_url }}{{ page_obj.next_page_number() }}">next</a>
                     {% endif %}
                 </span>
             </div>

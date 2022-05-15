@@ -1,14 +1,15 @@
-from django.urls import re_path
+from django.urls import re_path, path
 
 from budget.views import LastOperations, EditCashFlow, DeleteCashFlow, IncomeCreate, ExpenditureCreate, TransferCreate
 
 urlpatterns = [
-    re_path(r"^(?P<account>[0-9a-z_-]+)?$", LastOperations.as_view(), name="budget-list"),
-    re_path(
-        r"^(?P<account>[0-9a-z_-]+)?/cashflow/edit/(?P<pk>[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})$",
-        EditCashFlow.as_view(),
-        name="cashflow-edit"
-    ),
+    path("budget/", LastOperations.as_view(), name="budget-list"),
+    # re_path(r"^(?P<account>[0-9a-z_-]+)?$", LastOperations.as_view(), name="budget-list"),
+    # re_path(
+    #     r"^(?P<account>[0-9a-z_-]+)?/cashflow/edit/(?P<pk>[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})$",
+    #     EditCashFlow.as_view(),
+    #     name="cashflow-edit"
+    # ),
     re_path(
         r"^(?P<account>[0-9a-z_-]+)?/cashflow/delete/(?P<pk>[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})$",
         DeleteCashFlow.as_view(),

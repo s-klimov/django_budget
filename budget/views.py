@@ -19,13 +19,13 @@ class LastOperations(ListView):
 
     def get_queryset(self):
         return get_cashflows(
-            bank_account_slug=self.kwargs.get('account')
+            bank_account_slug=self.request.GET.get('bank_account')
         )
 
     def get_context_data(self, *, object_list=None, **kwargs):
         context = super(LastOperations, self).get_context_data(object_list=None, **kwargs)
         context["bank_accounts"] = BankAccount.objects.filter(is_active=True)
-        context["current_account"] = BankAccount.objects.get(slug=self.kwargs['account']).slug if self.kwargs.get('account') else None
+        context["current_account"] = BankAccount.objects.get(slug=self.request.GET.get('bank_account')).slug if self.request.GET.get('bank_account') else None
         return context
 
     @method_decorator(permission_required('budget.view_income'))

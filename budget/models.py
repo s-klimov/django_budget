@@ -5,7 +5,7 @@ from django.utils import timezone
 from timestamps.models import models, Model
 
 from django.template.defaultfilters import slugify as django_slugify
-
+from customer.models import Profile
 
 alphabet = {'а': 'a', 'б': 'b', 'в': 'v', 'г': 'g', 'д': 'd', 'е': 'e', 'ё': 'yo', 'ж': 'zh', 'з': 'z', 'и': 'i',
             'й': 'j', 'к': 'k', 'л': 'l', 'м': 'm', 'н': 'n', 'о': 'o', 'п': 'p', 'р': 'r', 'с': 's', 'т': 't',
@@ -21,6 +21,7 @@ def slugify(s):
 
 
 class BankAccount(Model):
+    profile = models.ForeignKey(Profile, on_delete=models.CASCADE, related_name='accounts')
     name = models.CharField(
         max_length=200, verbose_name="название", db_index=True, unique=True
     )
@@ -62,6 +63,7 @@ class Category(Model):
 
 
 class IncomeCategory(Category):
+    profile = models.ForeignKey(Profile,  null=True, on_delete=models.CASCADE, related_name='incomecategory')
 
     class Meta:
         ordering = ("name",)
@@ -70,6 +72,7 @@ class IncomeCategory(Category):
 
 
 class ExpenditureCategory(Category):
+    profile = models.ForeignKey(Profile, null=True, on_delete=models.CASCADE, related_name='expenditurecategory')
 
     class Meta:
         ordering = ("name",)

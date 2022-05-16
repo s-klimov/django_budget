@@ -45,6 +45,7 @@ INSTALLED_APPS = [
     'django_admin_inline_paginator',
     'budget',
     'account',
+    'customer',
     'bootstrap5',
 ]
 

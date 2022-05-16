@@ -30,22 +30,30 @@
                 <td {% if item.signed_value < 0 %} bgcolor="#cd5c5c" {% else %} bgcolor="#90ee90" {% endif %}>{{ item.operation_date }}</td>
                 {% if current_account %}
                     <td><a href={% url 'cashflow-edit' account=current_account pk=item.id %}>{{ item.signed_value }}</a></td>
-                {% else %}
+                {% elif item.sub_category.category.profile == request.user.profile %}
                     <td><a href={% url 'cashflow-edit' pk=item.id %}>{{ item.signed_value }}</a></td>
+                {% else %}
+                    <td><p>{{ item.signed_value }}</p></td>
                 {% endif %}
                 <td>{{ item.account }}</td>
                 <td>{{ item.comment }}</td>
-                <td>
-                    <form action=
-                            {% if current_account %}
-                                  {% url 'cashflow-delete' account=current_account pk=item.id %}
-                            {% else %}
-                                {% url 'cashflow-delete' pk=item.id %}
-                            {% endif %} method="post">
-                        {% csrf_token %}
-                        <input type="submit" value="удалить">
-                    </form>
-                </td>
+                {% if item.sub_category.category.profile == request.user.profile %}
+                    <td>
+                        <form action=
+                                {% if current_account %}
+                                      {% url 'cashflow-delete' account=current_account pk=item.id %}
+                                {% else %}
+                                    {% url 'cashflow-delete' pk=item.id %}
+                                {% endif %} method="post">
+                            {% csrf_token %}
+                            <input type="submit" value="удалить">
+                        </form>
+                    </td>
+                {% else %}
+                    <td>
+                        <p>{{ item.sub_category.category.profile }}</p>
+                    </td>
+                {% endif %}
             </tr>
             {% endfor %}
         </table>
@@ -68,6 +76,5 @@
     {% else %}
         <p>Таблица доходов/расходов пуста</p>
     {% endif %}
-    <a href={% url 'household' %}>Домохозяйство</a>
 
 {% endblock %}

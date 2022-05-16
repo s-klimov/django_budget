@@ -1,8 +1,18 @@
 from django.urls import re_path
 
-from budget.views import LastOperations, EditCashFlow, DeleteCashFlow, IncomeCreate, ExpenditureCreate, TransferCreate
+from budget.views import (
+    LastOperations,
+    EditCashFlow,
+    DeleteCashFlow,
+    IncomeCreate,
+    ExpenditureCreate,
+    TransferCreate,
+    LastOperationsHousehold,
+)
+
 
 urlpatterns = [
+    re_path(r"household", LastOperationsHousehold.as_view(), name="household"),
     re_path(r"^(?P<account>[0-9a-z_-]+)?$", LastOperations.as_view(), name="budget-list"),
     re_path(
         r"^(?P<account>[0-9a-z_-]+)?/cashflow/edit/(?P<pk>[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})$",

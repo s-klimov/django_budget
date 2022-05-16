@@ -10,24 +10,33 @@ from budget.models import Income, Expenditure, Transfer, BankAccount
 from timestamps.models import Model
 
 
-def get_cashflows(profile, bank_account_slug=None):
+def get_cashflows(profile, bank_account_slug=None, household=None):
     bank_account = get_object_or_404(BankAccount, slug=bank_account_slug) if bank_account_slug else None
-    manager = Income.objects.filter(sub_category__category__profile=profile) if not bank_account \
-        else Income.objects.filter(bank_account=bank_account)
+    if household:
+        manager = Income.objects.filter(sub_category__category__profile__in=household.members.all())
+    else:
+        manager = Income.objects.filter(sub_category__category__profile=profile) if not bank_account \
+            else Income.objects.filter(bank_account=bank_account)
     incomes = manager.annotate(
         comment=F("sub_category__name"),
         signed_value=F("value"),
         account=F("bank_account__name"),
     )
-
-    manager = Expenditure.objects.filter(sub_category__category__profile=profile) if not bank_account else Expenditure.objects.filter(bank_account=bank_account)
+    if household:
+        manager = Expenditure.objects.filter(sub_category__category__profile__in=household.members.all())
+    else:
+        manager = Expenditure.objects.filter(sub_category__category__profile=profile) if not bank_account \
+            else Expenditure.objects.filter(bank_account=bank_account)
     expenditures = manager.annotate(
         comment=F("sub_category__name"),
         signed_value=-1 * F("value"),
         account=F("bank_account__name"),
     )
 
-    manager = Transfer.objects.filter(bank_account=bank_account)
+    if household:
+        manager = Transfer.objects.filter(bank_account__profile__in=household.members.all())
+    else:
+        manager = Transfer.objects.filter(bank_account=bank_account)
     transfers_from = manager.annotate(
         comment=F("bank_account_to__name"),
         signed_value=-1 * F("value"),
@@ -35,7 +44,10 @@ def get_cashflows(profile, bank_account_slug=None):
     )
 
     # manager = Transfer.objects.all() if not bank_account else Transfer.objects.filter(bank_account_to=bank_account)
-    manager = Transfer.objects.filter(bank_account_to=bank_account)
+    if household:
+        manager = Transfer.objects.filter(bank_account__profile__in=household.members.all())
+    else:
+        manager = Transfer.objects.filter(bank_account_to=bank_account)
     transfers_to = manager.annotate(
         comment=F("bank_account__name"),
         signed_value=F("value"),

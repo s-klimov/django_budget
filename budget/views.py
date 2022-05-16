@@ -7,6 +7,7 @@ from django.shortcuts import get_object_or_404
 from django.urls import reverse, reverse_lazy
 from django.utils.decorators import method_decorator
 from django.views.generic import ListView, DetailView, DeleteView, CreateView
+from django.core.exceptions import ObjectDoesNotExist
 
 from budget.forms import TransferForm, ExpenditureForm, IncomeForm
 from budget.models import Income, Expenditure, Transfer, BankAccount, IncomeSubCategory, ExpenditureSubCategory
@@ -30,6 +31,37 @@ class LastOperations(ListView):
                                                              profile=self.request.user.profile).slug \
             if self.kwargs.get('account') else None
         return context
+
+    @method_decorator(permission_required('budget.view_income'))
+    @method_decorator(permission_required('budget.view_expenditure'))
+    @method_decorator(permission_required('budget.view_transfer'))
+    def dispatch(self, request, *args, **kwargs):
+        return super().dispatch(request, *args, **kwargs)
+
+
+class LastOperationsHousehold(ListView):
+    template_name = 'budget/lastoperations_household.html'
+    paginate_by = settings.PAGINATE_BY
+
+    def get_queryset(self):
+        try:
+            household = self.request.user.household
+        except ObjectDoesNotExist:
+            household = self.request.user.profile.household.first()
+
+        return get_cashflows(
+            bank_account_slug=self.kwargs.get('account'),
+            profile=self.request.user.profile,
+            household=household
+        )
+
+    # def get_context_data(self, *, object_list=None, **kwargs):
+    #     context = super(LastOperationsHousehold, self).get_context_data(object_list=None, **kwargs)
+    #     context["bank_accounts"] = BankAccount.objects.filter(is_active=True, profile=self.request.user.profile)
+    #     context["current_account"] = BankAccount.objects.get(slug=self.kwargs['account'],
+    #                                                          profile=self.request.user.profile).slug \
+    #         if self.kwargs.get('account') else None
+    #     return context
 
     @method_decorator(permission_required('budget.view_income'))
     @method_decorator(permission_required('budget.view_expenditure'))

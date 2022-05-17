@@ -36,7 +36,7 @@ class LastOperations(ListView):
 
 
 class EditCashFlow(DetailView):
-    template_name = "budget/jinja2/budget/cashflow_edit.html"
+    template_name = "budget/cashflow_edit.html"
 
     def get_queryset(self):
         id = self.kwargs[self.pk_url_kwarg]
@@ -92,14 +92,15 @@ class IncomeCreate(PermissionRequiredMixin, CreateView):
 
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
-        if self.kwargs.get('account'):
-            bank_account = get_object_or_404(BankAccount, slug=self.kwargs['account'])
+        self.account_slug = self.request.GET.get("bank_account")
+        if self.account_slug:
+            bank_account = get_object_or_404(BankAccount, slug=self.account_slug)
             kwargs["initial"]['bank_account'] = bank_account
         return kwargs
 
     def get_success_url(self):
-        if self.kwargs.get('account'):
-            return reverse("budget-list", kwargs={"account": self.kwargs['account']})
+        if self.account_slug:
+            return reverse("budget-list") + f"?bank_account={self.account_slug}"
         return reverse_lazy("budget-list")
 
 
@@ -111,14 +112,15 @@ class ExpenditureCreate(PermissionRequiredMixin, CreateView):
 
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
-        if self.kwargs.get('account'):
-            bank_account = get_object_or_404(BankAccount, slug=self.kwargs['account'])
+        self.account_slug = self.request.GET.get("bank_account")
+        if self.account_slug:
+            bank_account = get_object_or_404(BankAccount, slug=self.account_slug)
             kwargs["initial"]['bank_account'] = bank_account
         return kwargs
 
     def get_success_url(self):
-        if self.kwargs.get('account'):
-            return reverse("budget-list", kwargs={"account": self.kwargs['account']})
+        if self.account_slug:
+            return reverse("budget-list") + f"?bank_account={self.account_slug}"
         return reverse_lazy("budget-list")
 
 
@@ -130,12 +132,13 @@ class TransferCreate(PermissionRequiredMixin, CreateView):
 
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
-        if self.kwargs.get('account'):
-            bank_account = get_object_or_404(BankAccount, slug=self.kwargs['account'])
+        self.account_slug = self.request.GET.get("bank_account")
+        if self.account_slug:
+            bank_account = get_object_or_404(BankAccount, slug=self.account_slug)
             kwargs["initial"]['bank_account'] = bank_account
         return kwargs
 
     def get_success_url(self):
-        if self.kwargs.get('account'):
-            return reverse("budget-list", kwargs={"account": self.kwargs['account']})
+        if self.account_slug:
+            return reverse("budget-list") + f"?bank_account={self.account_slug}"
         return reverse_lazy("budget-list")

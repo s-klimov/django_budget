@@ -1,20 +1,15 @@
 {% extends "budget/base.html" %}
 {% block content %}
 
-    <style type="text/css">
-        table {border: 1px solid grey;}
-        th {border: 1px solid grey; text-align: center}
-        td {border: 1px solid grey; text-align: center}
-    </style>
+    {% set account_param = "" %}
     {% if current_account %}
-        <a href={{ url('expenditure-create', args=[current_account]) }}>Добавить расход</a>
-        <a href={{ url('transfer-create', args=[current_account]) }}>Добавить перевод</a>
-        <a href={{ url('income-create', args=[current_account]) }}>Добавить доход</a>
-    {% else %}
-        <a href={{ url('expenditure-create') }}>Добавить расход</a>
-        <a href={{ url('transfer-create') }}>Добавить перевод</a>
-        <a href={{ url('income-create') }}>Добавить доход</a>
+        {% set account_param = "?bank_account=" ~ current_account %}
     {% endif %}
+    <div class="btn-group" role="group" aria-label="Basic example">
+        <button type="button" class="btn btn-outline-secondary"><a class="dropdown-item" href="{{ url('expenditure-create') }}{{ account_param }}">Добавить расход</a></button>
+        <button type="button" class="btn btn-outline-secondary"><a class="dropdown-item" href="{{ url('transfer-create') }}{{ account_param }}">Добавить перевод</a></button>
+        <button type="button" class="btn btn-outline-secondary"><a class="dropdown-item" href="{{ url('income-create') }}{{ account_param }}">Добавить доход</a></button>
+    </div>
 
     {% if object_list %}
         <ul class="list-group">
@@ -23,12 +18,14 @@
                 {% if item.signed_value <= 0 %}
                     {% set li_class = "list-group-item list-group-item-danger" %}
                 {% endif %}
+                <a href="{{ url('cashflow-edit', args=[item.id]) }}">
                 <li class="{{ li_class }}">
-                        {{ item.operation_date }}
-                        {{ item.signed_value }}
+                        {{ item.operation_date }}:
                         {{ item.account }}
+                        {{ item.value }}
                         {{ item.comment }}
                 </li>
+                </a>
             {% endfor %}
         </ul>
 {#        <table>#}

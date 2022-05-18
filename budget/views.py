@@ -26,19 +26,6 @@ class LastOperations(PermissionRequiredMixin, ListView):
         return context
 
 
-class DeleteCashFlow(PermissionRequiredMixin, DeleteView):
-    permission_required = ('budget.delete_income', 'budget.delete_expenditure', 'budget.delete_transfer')
-
-    def get_queryset(self):
-        id = self.kwargs[self.pk_url_kwarg]
-        return get_cashflow_model(id).objects.all()
-
-    def get_success_url(self):
-        if self.kwargs.get('account'):
-            return reverse("budget-list", kwargs={"account": self.kwargs['account']})
-        return reverse_lazy("budget-list")
-
-
 class CRUDMixin:
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
@@ -86,6 +73,20 @@ class EditCashFlow(PermissionRequiredMixin, CRUDMixin, UpdateView):
         kwargs = super().get_form_kwargs()
         self.account_slug = self.request.GET.get("bank_account")
         return kwargs
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data()
+        context['pk'] = self.kwargs['pk']
+        context['current_account'] = self.account_slug
+        return context
+
+    def get_queryset(self):
+        id = self.kwargs[self.pk_url_kwarg]
+        return get_cashflow_model(id).objects.all()
+
+
+class DeleteCashFlow(PermissionRequiredMixin, CRUDMixin, DeleteView):
+    permission_required = ('budget.delete_income', 'budget.delete_expenditure', 'budget.delete_transfer')
 
     def get_queryset(self):
         id = self.kwargs[self.pk_url_kwarg]

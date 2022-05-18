@@ -6,7 +6,16 @@
         {{ form.as_p() }}
         <button type="submit" class="btn btn-success">Сохранить</button>
     </form>
-    <form method="post" action="{{ url('cashflow-delete', args=[form.id]) }}">
-        <button type="submit" class="btn btn-success">Удалить</button>
-    </form>
+
+    {% if pk %}
+        {% set account_param = "" %}
+        {% if current_account %}
+            {% set account_param = "?bank_account=" ~ current_account %}
+        {% endif %}
+
+        <form method="post" action="{{ url('cashflow-delete', args=[pk]) }}{{ account_param }}">
+            <input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}">
+            <button type="submit" class="btn btn-success">Удалить</button>
+        </form>
+    {% endif %}
 {% endblock %}

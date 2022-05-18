@@ -6,4 +6,7 @@
         {{ form.as_p() }}
         <button type="submit" class="btn btn-success">Сохранить</button>
     </form>
+    <form method="post" action="{{ url('cashflow-delete', args=[form.id]) }}">
+        <button type="submit" class="btn btn-success">Удалить</button>
+    </form>
 {% endblock %}

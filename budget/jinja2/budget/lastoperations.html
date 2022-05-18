@@ -5,6 +5,7 @@
     {% if current_account %}
         {% set account_param = "?bank_account=" ~ current_account %}
     {% endif %}
+
     <div class="btn-group" role="group" aria-label="Basic example">
         <button type="button" class="btn btn-outline-secondary"><a class="dropdown-item" href="{{ url('expenditure-create') }}{{ account_param }}">Добавить расход</a></button>
         <button type="button" class="btn btn-outline-secondary"><a class="dropdown-item" href="{{ url('transfer-create') }}{{ account_param }}">Добавить перевод</a></button>
@@ -18,7 +19,7 @@
                 {% if item.signed_value <= 0 %}
                     {% set li_class = "list-group-item list-group-item-danger" %}
                 {% endif %}
-                <a href="{{ url('cashflow-edit', args=[item.id]) }}">
+                <a href="{{ url('cashflow-edit', args=[item.id]) }}{{ account_param }}">
                 <li class="{{ li_class }}">
                         {{ item.operation_date }}:
                         {{ item.account }}
@@ -28,38 +29,7 @@
                 </a>
             {% endfor %}
         </ul>
-{#        <table>#}
-{#            <tr>#}
-{#                <th width="10%">дата</th>#}
-{#                <th width="10%">сумма</th>#}
-{#                <th width="10%">счет</th>#}
-{#                <th width="10%">источник</th>#}
-{#                <th width="10%"></th>#}
-{#            </tr>#}
-{#            {% for item in object_list %}#}
-{#            <tr>#}
-{#                <td {% if item.signed_value < 0 %} bgcolor="#cd5c5c" {% else %} bgcolor="#90ee90" {% endif %}>{{ item.operation_date }}</td>#}
-{#                {% if current_account %}#}
-{#                    <td><a href={% url 'cashflow-edit' account=current_account pk=item.id %}>{{ item.signed_value }}</a></td>#}
-{#                {% else %}#}
-{#                    <td><a href={% url 'cashflow-edit' pk=item.id %}>{{ item.signed_value }}</a></td>#}
-{#                {% endif %}#}
-{#                <td>{{ item.account }}</td>#}
-{#                <td>{{ item.comment }}</td>#}
-{#                <td>#}
-{#                    <form action=#}
-{#                            {% if current_account %}#}
-{#                                  {% url 'cashflow-delete' account=current_account pk=item.id %}#}
-{#                            {% else %}#}
-{#                                {% url 'cashflow-delete' pk=item.id %}#}
-{#                            {% endif %} method="post">#}
-{#                        <input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}">#}
-{#                        <input type="submit" value="удалить">#}
-{#                    </form>#}
-{#                </td>#}
-{#            </tr>#}
-{#            {% endfor %}#}
-{#        </table>#}
+
         {# .... **Now the pagination section** .... #}
         {% set base_paginate_url = "?page=" %}
         {% if current_account %}

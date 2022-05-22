@@ -1,8 +1,17 @@
 <h6>ваши счета:</h6>
-<ul class="links">
-{% for bank_account in accounts_list %}
-    <a href={{ url('budget-list')+'?'+'bank_account='+bank_account.slug }}>{{ bank_account.name }}</a> - {{ bank_account.outcoming_balance }}
-    <br>
-{% endfor %}
-<a href={{ url('budget-list') }}>Все счета</a>
-</ul>
+<div class="btn-group-vertical">
+
+    {% for bank_account in accounts_list %}
+        {% set account_class = "btn btn-primary" %}
+        {% if current_account == bank_account.slug %}
+            {% set account_class = "btn btn-primary active" %}
+        {% endif %}
+        <a href={{ url('budget-list')+'?'+'bank_account='+bank_account.slug }} class="{{ account_class }}">{{ bank_account.name }} - {{ bank_account.outcoming_balance }}</a>
+    {% endfor %}
+
+    {% set account_class = "btn btn-primary" %}
+    {% if not current_account %}
+        {% set account_class = "btn btn-primary active" %}
+    {% endif %}
+    <a href="{{ url('budget-list') }}" class="{{ account_class }}">Все счета</a>
+</div>

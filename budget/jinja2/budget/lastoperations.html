@@ -1,15 +1,18 @@
 {% extends "budget/base.html" %}
 {% block content %}
+    <figure class="figure">
+        <img src="{{ static('budget/example.jpg') }}" class="figure-img img-fluid rounded"  width=480 height=360 alt="График доходов-расходов не загрузился">
+        <figcaption class="figure-caption">Здесь д.б. график доходов-расходов.</figcaption>
+    </figure>
 
     {% set account_param = "" %}
     {% if current_account %}
         {% set account_param = "?bank_account=" ~ current_account %}
     {% endif %}
-
     <div class="btn-group" role="group" aria-label="Basic example">
-        <button type="button" class="btn btn-outline-secondary"><a class="dropdown-item" href="{{ url('expenditure-create') }}{{ account_param }}">Добавить расход</a></button>
-        <button type="button" class="btn btn-outline-secondary"><a class="dropdown-item" href="{{ url('transfer-create') }}{{ account_param }}">Добавить перевод</a></button>
-        <button type="button" class="btn btn-outline-secondary"><a class="dropdown-item" href="{{ url('income-create') }}{{ account_param }}">Добавить доход</a></button>
+        <button type="button" class="btn btn-primary"><a class="dropdown-item" href="{{ url('expenditure-create') }}{{ account_param }}">Добавить расход</a></button>
+        <button type="button" class="btn btn-primary"><a class="dropdown-item" href="{{ url('transfer-create') }}{{ account_param }}">Добавить перевод</a></button>
+        <button type="button" class="btn btn-primary"><a class="dropdown-item" href="{{ url('income-create') }}{{ account_param }}">Добавить доход</a></button>
     </div>
 
     {% if object_list %}
@@ -30,26 +33,29 @@
             {% endfor %}
         </ul>
 
-        {# .... **Now the pagination section** .... #}
-        {% set base_paginate_url = "?page=" %}
-        {% if current_account %}
-            {% set base_paginate_url = "?bank_account=" ~ current_account ~ "&page=" %}
-        {% endif %}
-
         {% if is_paginated %}
-            <div class="pagination">
-                <span class="page-links">
+            {# .... **Now the pagination section** .... #}
+            {% set base_paginate_url = "?page=" %}
+            {% if current_account %}
+                {% set base_paginate_url = "?bank_account=" ~ current_account ~ "&page=" %}
+            {% endif %}
+            <nav aria-label="...">
+                <ul class="pagination">
                     {% if page_obj.has_previous() %}
-                        <a href="{{ base_paginate_url }}{{ page_obj.previous_page_number() }}">previous</a>
+                        <li class="page-item">
+                            <a class="page-link" href="{{ base_paginate_url }}{{ page_obj.previous_page_number() }}">Предыдущая</a>
+                        </li>
                     {% endif %}
-                    <span class="page-current">
-                        Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}.
-                    </span>
+                    <li class="page-item active" aria-current="page">
+                        <a class="page-link">{{ page_obj.number }}</a>
+                    </li>
                     {% if page_obj.has_next() %}
-                        <a href="{{ base_paginate_url }}{{ page_obj.next_page_number() }}">next</a>
+                        <li class="page-item">
+                            <a class="page-link" href="{{ base_paginate_url }}{{ page_obj.next_page_number() }}">Следующая</a>
+                        </li>
                     {% endif %}
-                </span>
-            </div>
+                </ul>
+            </nav>
         {% endif %}
     {% else %}
         <p>Таблица доходов/расходов пуста</p>
